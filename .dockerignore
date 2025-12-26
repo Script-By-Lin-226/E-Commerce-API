@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+
+# Frontend (not needed for backend Docker image)
+frontend/
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# Railway
+.railway/
+.railwayignore
+
+# Nixpacks (not using anymore)
+nixpacks.toml
+
+# Build artifacts
+dist/
+build/
+
