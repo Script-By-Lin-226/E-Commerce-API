@@ -1,12 +1,7 @@
 import axios from 'axios';
 
-// Normalize API URL - replace 0.0.0.0 with localhost
-const getApiUrl = () => {
-  const envUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-  return envUrl.replace('0.0.0.0', 'localhost');
-};
 
-const API_BASE_URL = getApiUrl();
+const API_BASE_URL = "https://e-commerce-api-1nn0.onrender.com";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
