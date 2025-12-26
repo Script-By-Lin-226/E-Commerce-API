@@ -8,16 +8,16 @@ A full-stack e-commerce application with FastAPI backend and React frontend.
 
 ```bash
 # Install dependencies
-pip install -r requirements.txt  # or use uv/pip based on your setup
+pip install -r requirements.txt
 
 # Set up environment variables (.env file)
 DATABASE_URL=your_database_url
-SECRET_KEY=your_secret_key
+REDIS_URL=your_redis_url
+JWT_SECRET_KEY=your_secret_key
 ACCESS_TOKEN_EXPIRE_MINS=30
 REFRESH_TOKEN_EXPIRE_DAYS=7
-ALGORITHM=HS256
 
-# Run migrations (if using Alembic)
+# Run migrations
 alembic upgrade head
 
 # Start backend
@@ -32,7 +32,7 @@ Backend runs on: `http://localhost:8000`
 cd frontend
 
 # Install dependencies
-npm install
+npm install --legacy-peer-deps
 
 # Create .env file
 echo "VITE_API_URL=http://localhost:8000" > .env
@@ -63,62 +63,83 @@ E_Commerce_API/
 │       ├── pages/         # Page components
 │       └── services/      # API service layer
 ├── migrations/            # Database migrations
+├── Dockerfile            # Docker configuration
 └── main.py               # Backend entry point
 ```
 
-## 🌐 Sharing/Deployment
+## 🌐 Deployment
 
-### Deploy to Railway (Recommended - Both Frontend & Backend)
+### Backend Deployment
 
-**Quick Deploy:**
-1. Go to: https://railway.app
-2. Sign up with GitHub
-3. New Project → Deploy from GitHub repo
-4. Select your repository
-5. Railway auto-detects and deploys services
+#### Option 1: Railway (Recommended)
 
-**Important:** In Railway Dashboard → Backend Service → Settings:
-- **Builder:** Select "Nixpacks" (not Docker)
-- **Build Command:** `pip install -r requirements.txt`
-- **Start Command:** `uvicorn app.app:app --host 0.0.0.0 --port $PORT`
+1. Go to https://railway.app and sign up
+2. New Project → Deploy from GitHub
+3. Select your repository
+4. Railway auto-detects Dockerfile
+5. Add environment variables:
+   - `DATABASE_URL`
+   - `REDIS_URL`
+   - `JWT_SECRET_KEY`
+   - `ACCESS_TOKEN_EXPIRE_MINS=30`
+   - `REFRESH_TOKEN_EXPIRE_DAYS=7`
+6. Railway automatically sets `PORT` variable
 
-### Share Backend (Ngrok - Development Only)
+**Note:** The `railway.json` and `railway.toml` are configured to use Dockerfile's ENTRYPOINT.
 
-```bash
-# Install ngrok: https://ngrok.com/download
-ngrok config add-authtoken YOUR_TOKEN
+#### Option 2: Fly.io
 
-# Start ngrok
-ngrok http 8000
+1. Install Fly.io CLI: `curl -L https://fly.io/install.sh | sh`
+2. Login: `fly auth login`
+3. Launch: `fly launch --name e-commerce-api-backend`
+4. Set secrets: `fly secrets set DATABASE_URL="..." JWT_SECRET_KEY="..."`
+5. Deploy: `fly deploy`
 
-# Get your public URL (e.g., https://abc123.ngrok-free.app)
-# Update frontend/.env: VITE_API_URL=https://your-ngrok-url.ngrok-free.app
+**Note:** `fly.toml` is pre-configured.
+
+#### Option 3: Koyeb
+
+1. Go to https://www.koyeb.com and sign up
+2. Create App → Connect GitHub
+3. Select repository
+4. Build settings auto-detected from Dockerfile
+5. Set environment variables in dashboard
+6. Provision PostgreSQL database in Koyeb dashboard
+7. Deploy
+
+### Frontend Deployment
+
+#### Option 1: Netlify (Recommended)
+
+1. Go to https://www.netlify.com and sign up
+2. Add new site → Import from Git
+3. Connect GitHub and select repository
+4. Build settings auto-detected from `frontend/netlify.toml`:
+   - Base directory: `frontend`
+   - Build command: `npm install --legacy-peer-deps && npm run build`
+   - Publish directory: `frontend/dist`
+5. Add environment variable: `VITE_API_URL=https://your-backend-url.com`
+6. Deploy
+
+#### Option 2: Vercel
+
+1. Go to https://vercel.com and sign up
+2. Import project from GitHub
+3. Root directory: `frontend`
+4. Build command: `npm install --legacy-peer-deps && npm run build`
+5. Output directory: `dist`
+6. Add environment variable: `VITE_API_URL=https://your-backend-url.com`
+
+### Update CORS After Deployment
+
+After deploying backend, update `app/app.py`:
+
+```python
+allow_origins=[
+    "http://localhost:3000",
+    "https://your-frontend-url.netlify.app",  # Add your frontend URL
+],
 ```
-
-### Deploy Frontend Separately (Free Options)
-
-**Vercel (Recommended):**
-```bash
-cd frontend
-npm install -g vercel
-vercel
-# Add environment variable: VITE_API_URL=https://your-backend-url
-```
-
-**Netlify:**
-```bash
-cd frontend
-npm run build
-# Drag 'dist' folder to netlify.com
-# Add environment variable: VITE_API_URL
-```
-
-**Render:**
-- Dashboard → New + → Static Site
-- Connect GitHub repo
-- Root Directory: `frontend`
-- Build Command: `npm install && npm run build`
-- Publish Directory: `dist`
 
 ## 🔑 Features
 
@@ -143,10 +164,11 @@ Once backend is running, visit:
 **Backend:**
 - FastAPI
 - SQLAlchemy (Async)
-- PostgreSQL/SQLite
+- PostgreSQL
 - Redis
 - JWT Authentication
 - Alembic (Migrations)
+- Docker
 
 **Frontend:**
 - React 18
@@ -158,4 +180,3 @@ Once backend is running, visit:
 ## 📄 License
 
 MIT
-

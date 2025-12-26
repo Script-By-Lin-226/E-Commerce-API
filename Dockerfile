@@ -18,7 +18,7 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
 # Copy entrypoint script first
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Copy application code
@@ -28,4 +28,5 @@ COPY . .
 EXPOSE 8000
 
 # Use entrypoint script to handle PORT variable expansion
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Use full path to ensure Railway can find it
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
