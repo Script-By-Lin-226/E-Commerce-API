@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: e-commerce-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINS
+        value: 30
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: 7
+      - key: ALGORITHM
+        value: HS256
+      - key: PYTHON_VERSION
+        value: 3.11.0
+

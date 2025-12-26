@@ -28,13 +28,15 @@ CORS_ORIGINS = [
     "http://127.0.0.1:8000",
     # Add your specific Vercel URL
     "https://e-commerce-api-test-seven.vercel.app",
+    # Render backend URLs (will be added after deployment)
+    # "https://e-commerce-api.onrender.com",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     # Use regex to allow dynamic origins (ngrok, Vercel, etc.)
     # This handles ngrok URL changes and Vercel deployments
-    allow_origin_regex=r"https://.*\.(ngrok-free\.app|ngrok\.io|ngrok\.app|loca\.lt|vercel\.app|netlify\.app|railway\.app|render\.com)",
+    allow_origin_regex=r"https://.*\.(ngrok-free\.app|ngrok\.io|ngrok\.app|loca\.lt|vercel\.app|netlify\.app|railway\.app|render\.com|onrender\.com)",
     # Also allow specific localhost and Vercel origins
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
