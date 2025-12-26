@@ -13,6 +13,7 @@ const api = axios.create({
   withCredentials: true, // Important for cookies
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true', // Bypass ngrok browser warning page
   },
 });
 

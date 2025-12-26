@@ -32,16 +32,14 @@ CORS_ORIGINS = [
 
 app.add_middleware(
     CORSMiddleware,
-    # Use regex to allow:
-    # - Any ngrok subdomain (for free tier URL changes)
-    # - Any Vercel subdomain (for deployed frontend)
-    # - Any Netlify subdomain (alternative deployment)
+    # Use regex to allow dynamic origins (ngrok, Vercel, etc.)
+    # This handles ngrok URL changes and Vercel deployments
     allow_origin_regex=r"https://.*\.(ngrok-free\.app|ngrok\.io|ngrok\.app|loca\.lt|vercel\.app|netlify\.app|railway\.app|render\.com)",
-    # Also allow specific localhost origins
+    # Also allow specific localhost and Vercel origins
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["*", "ngrok-skip-browser-warning", "Content-Type", "Authorization"],
     expose_headers=["*"],
     max_age=3600,
 )
