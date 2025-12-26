@@ -46,6 +46,9 @@ logs/
 # Nixpacks (not using anymore)
 nixpacks.toml
 
+# Keep entrypoint script
+!docker-entrypoint.sh
+
 # Build artifacts
 dist/
 build/

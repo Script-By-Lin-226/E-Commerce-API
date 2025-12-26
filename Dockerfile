@@ -17,10 +17,15 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
+# Copy entrypoint script first
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Copy application code
 COPY . .
 
 # Railway ignores EXPOSE, but it's fine to keep
 EXPOSE 8000
 
-# ✅ Railway-compatible startup
-CMD ["uvicorn app.app:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Use entrypoint script to handle PORT variable expansion
+ENTRYPOINT ["docker-entrypoint.sh"]
