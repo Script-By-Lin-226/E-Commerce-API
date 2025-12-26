@@ -22,7 +22,11 @@ app = FastAPI(title="E-Commerce API" , lifespan=life_cycle)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r".*",  # Allow all origins for demo (regex pattern)
+    allow_origins=[
+        "https://e-commerce-api-test-seven.vercel.app",
+        "http://localhost:3000",
+        "https://e-commerce-api-1nn0.onrender.com"
+    ],  # Allow all origins for demo (regex pattern)
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
