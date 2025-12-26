@@ -12,8 +12,7 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true, // Important for cookies
   headers: {
-    'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true', // Bypass ngrok browser warning page
+    'Content-Type': 'application/json'
   },
 });
 
@@ -32,7 +31,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     // Check for new access token in response header
-    const newAccessToken = response.headers['x-new-access-token'];
+    const newAccessToken = response.headers['X-New-Access-Token'];
     if (newAccessToken) {
       // Update cookie or store in localStorage if needed
       document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=None; Secure=true`;
