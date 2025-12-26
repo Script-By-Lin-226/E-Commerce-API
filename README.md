@@ -75,9 +75,12 @@ E_Commerce_API/
 2. Sign up with GitHub
 3. New Project → Deploy from GitHub repo
 4. Select your repository
-5. Railway auto-detects and deploys both services!
+5. Railway auto-detects and deploys services
 
-**See:** `RAILWAY_SETUP.md` for detailed guide
+**Important:** In Railway Dashboard → Backend Service → Settings:
+- **Builder:** Select "Nixpacks" (not Docker)
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `uvicorn app.app:app --host 0.0.0.0 --port $PORT`
 
 ### Share Backend (Ngrok - Development Only)
 

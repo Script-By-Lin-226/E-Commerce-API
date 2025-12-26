@@ -1,0 +1,10 @@
+# Ignore files for Railway builds
+frontend/
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.local
+.git/
+.DS_Store
+
