@@ -26,10 +26,10 @@ CORS_ORIGINS = [
     "http://0.0.0.0:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    # Add your specific Vercel URL
+    # Vercel frontend URL
     "https://e-commerce-api-test-seven.vercel.app",
-    # Render backend URLs (will be added after deployment)
-    # "https://e-commerce-api.onrender.com",
+    # Render backend URLs (for API-to-API calls if needed)
+    "https://e-commerce-api-1nn0.onrender.com",
 ]
 
 app.add_middleware(
@@ -54,11 +54,29 @@ async def root():
 @app.options("/{full_path:path}")
 async def options_handler(full_path: str, request: Request):
     from fastapi.responses import Response
+    origin = request.headers.get("Origin")
+    
+    # Check if origin is allowed
+    allowed_origins = CORS_ORIGINS + [
+        "https://e-commerce-api-test-seven.vercel.app",
+        "https://e-commerce-api-1nn0.onrender.com",
+    ]
+    
+    # Allow if origin matches allowed list or regex pattern
+    import re
+    is_allowed = False
+    if origin:
+        if origin in allowed_origins:
+            is_allowed = True
+        elif re.match(r"https://.*\.(ngrok-free\.app|ngrok\.io|ngrok\.app|loca\.lt|vercel\.app|netlify\.app|railway\.app|render\.com|onrender\.com)", origin):
+            is_allowed = True
+    
     response = Response()
-    response.headers["Access-Control-Allow-Origin"] = request.headers.get("Origin", "*")
+    if is_allowed and origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Max-Age"] = "3600"
     return response
 
