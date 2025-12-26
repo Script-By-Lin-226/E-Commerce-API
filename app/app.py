@@ -18,20 +18,15 @@ app = FastAPI(title="E-Commerce API" , lifespan=life_cycle)
 # CORS middleware MUST be added FIRST (executes LAST in FastAPI)
 # FastAPI executes middlewares in REVERSE order of addition
 # So CORS needs to be first to execute last and add headers to all responses
-CORS_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://e-commerce-api-test-seven.vercel.app",
-]
+# DEMO MODE: Very permissive CORS settings - allow all origins
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_origin_regex=r"https://.*\.(vercel\.app|onrender\.com|ngrok-free\.app|ngrok\.io)",
+    allow_origin_regex=r".*",  # Allow all origins for demo (regex pattern)
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+    expose_headers=["*"],  # Expose all headers
     max_age=3600,
 )
 
