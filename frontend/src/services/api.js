@@ -35,7 +35,7 @@ api.interceptors.response.use(
     const newAccessToken = response.headers['x-new-access-token'];
     if (newAccessToken) {
       // Update cookie or store in localStorage if needed
-      document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=Lax; Secure=false`;
+      document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=None; Secure=true`;
     }
     return response;
   },
