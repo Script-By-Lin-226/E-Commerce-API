@@ -26,7 +26,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     // Check for new access token in response header
-    const newAccessToken = response.headers['X-New-Access-Token'];
+    const newAccessToken = response.headers["x-new-access-token"];
     if (newAccessToken) {
       // Update cookie or store in localStorage if needed
       document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=None; Secure=true`;
