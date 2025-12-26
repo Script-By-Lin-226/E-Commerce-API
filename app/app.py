@@ -5,7 +5,7 @@ from app.core.dependency import init_db , get_async_session
 from app.middleware.TokenRotationMiddleware import TokenRotationMiddleware
 from app.middleware.AuthMiddleware import AuthenticationMiddleware
 from app.routes.v1 import auth_route , product_management_route , order_and_payment_route
-from app.middleware.Logging_middleware import LoggingMiddleware
+
 
 
 @asynccontextmanager
@@ -41,4 +41,3 @@ app.include_router(auth_route.router)
 app.include_router(product_management_route.router)
 app.add_middleware(AuthenticationMiddleware)
 app.add_middleware(TokenRotationMiddleware)
-app.add_middleware(LoggingMiddleware)
