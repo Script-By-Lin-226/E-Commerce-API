@@ -4,10 +4,9 @@ nixPkgs = ["python311", "postgresql"]
 [phases.install]
 cmds = [
   "pip install --upgrade pip",
-  "pip install -r requirements.txt",
-  "chmod +x start_server.py"
+  "pip install -r requirements.txt"
 ]
 
 [start]
-cmd = "python start_server.py"
+cmd = "bash -c 'PORT=${PORT:-8000} uvicorn app.app:app --host 0.0.0.0 --port $PORT'"
 
