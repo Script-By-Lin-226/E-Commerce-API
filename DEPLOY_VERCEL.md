@@ -43,9 +43,11 @@ git push
 4. **Configure Project Settings**:
    - **Framework Preset**: Vite (or leave as "Other")
    - **Root Directory**: `frontend`
-   - **Build Command**: `npm install --legacy-peer-deps && npm run build`
+   - **Build Command**: `npm install --legacy-peer-deps && npx vite build` (or leave empty to use vercel.json)
    - **Output Directory**: `dist`
-   - **Install Command**: `npm install --legacy-peer-deps`
+   - **Install Command**: `npm install --legacy-peer-deps` (or leave empty to use vercel.json)
+   
+   **Note**: If you set Root Directory to `frontend`, Vercel will automatically use `frontend/vercel.json` settings. You can leave Build Command and Install Command empty in this case.
 
 5. **Environment Variables**:
    Click "Environment Variables" and add:
