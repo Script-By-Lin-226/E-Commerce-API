@@ -68,7 +68,18 @@ E_Commerce_API/
 
 ## 🌐 Sharing/Deployment
 
-### Share Backend (Ngrok)
+### Deploy to Railway (Recommended - Both Frontend & Backend)
+
+**Quick Deploy:**
+1. Go to: https://railway.app
+2. Sign up with GitHub
+3. New Project → Deploy from GitHub repo
+4. Select your repository
+5. Railway auto-detects and deploys both services!
+
+**See:** `RAILWAY_SETUP.md` for detailed guide
+
+### Share Backend (Ngrok - Development Only)
 
 ```bash
 # Install ngrok: https://ngrok.com/download
@@ -81,7 +92,7 @@ ngrok http 8000
 # Update frontend/.env: VITE_API_URL=https://your-ngrok-url.ngrok-free.app
 ```
 
-### Deploy Frontend (Free Options)
+### Deploy Frontend Separately (Free Options)
 
 **Vercel (Recommended):**
 ```bash
@@ -98,6 +109,13 @@ npm run build
 # Drag 'dist' folder to netlify.com
 # Add environment variable: VITE_API_URL
 ```
+
+**Render:**
+- Dashboard → New + → Static Site
+- Connect GitHub repo
+- Root Directory: `frontend`
+- Build Command: `npm install && npm run build`
+- Publish Directory: `dist`
 
 ## 🔑 Features
 

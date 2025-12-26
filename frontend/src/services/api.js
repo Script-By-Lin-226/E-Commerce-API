@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+// Normalize API URL - replace 0.0.0.0 with localhost
+const getApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  return envUrl.replace('0.0.0.0', 'localhost');
+};
 
-const API_BASE_URL = "https://e-commerce-api-1nn0.onrender.com";
+const API_BASE_URL = getApiUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -26,7 +31,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     // Check for new access token in response header
-    const newAccessToken = response.headers["x-new-access-token"];
+    const newAccessToken = response.headers['x-new-access-token'];
     if (newAccessToken) {
       // Update cookie or store in localStorage if needed
       document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=None; Secure=true`;
