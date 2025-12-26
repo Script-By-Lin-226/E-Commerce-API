@@ -2,7 +2,7 @@
 # Frontend should be deployed as separate service
 
 [phases.setup]
-nixPkgs = ["python311", "pip"]
+nixPkgs = ["python311"]
 
 [phases.install]
 cmds = [
