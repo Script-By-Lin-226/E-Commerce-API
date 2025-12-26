@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ["nodejs-18_x", "npm", "python311"]
+
+[phases.install]
+cmds = [
+  "npm install --legacy-peer-deps",
+  "chmod +x start_server.py"
+]
+
+[phases.build]
+cmds = [
+  "npm run build"
+]
+
+[start]
+cmd = "python3 start_server.py"
+
