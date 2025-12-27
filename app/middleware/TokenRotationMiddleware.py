@@ -1,11 +1,12 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from app.core.redis_cli import redis_client
 from app.services.jwt_service import decode_token, create_access_token, create_refresh_token
 from app.config.config import settings
 
 EXCLUDE_PATHS = {
-    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/auth/logout", "/", "/order/", "/payments" , "https://e-commerce-api-b9zy.onrender.com/auth/login"
+    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/auth/logout", "/", "/order/", "/payments"
 }
 
 class TokenRotationMiddleware(BaseHTTPMiddleware):
@@ -37,21 +38,32 @@ class TokenRotationMiddleware(BaseHTTPMiddleware):
         if not user_id and refresh_token:
             try:
                 payload = decode_token(refresh_token)
-                token_type = payload.get("type")
                 user_id = payload.get("sub")
-                
-                # Validate that it's a refresh token
-                if token_type != "refresh":
-                    return JSONResponse(status_code=401, content={"detail": "Invalid token type"})
-                
-                if not user_id:
-                    return JSONResponse(status_code=401, content={"detail": "Invalid refresh token"})
+                try:
+                    stored_token = await redis_client.get(f"refresh_token:{user_id}")
+                except Exception as e:
+                    # If Redis is unavailable, allow token refresh to proceed
+                    # This is a fallback for when Redis is not configured
+                    print(f"Warning: Redis unavailable, allowing token refresh: {e}")
+                    stored_token = None  # Allow refresh to proceed
 
-                # Rotate tokens (stateless - no server-side storage needed)
+                if stored_token and stored_token != refresh_token:
+                    return JSONResponse(status_code=401, content={"detail": "Refresh token invalid"})
+
+                # Rotate tokens
                 new_access_token = create_access_token({"sub": user_id})
                 new_refresh_token = create_refresh_token({"sub": user_id})
+                try:
+                    await redis_client.set(
+                        f"refresh_token:{user_id}",
+                        new_refresh_token,
+                        ex=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
+                    )
+                except Exception as e:
+                    # Log error but continue with token rotation
+                    print(f"Warning: Failed to update refresh token in Redis: {e}")
             except Exception:
-                return JSONResponse(status_code=401, content={"detail": "Refresh token invalid or expired"})
+                return JSONResponse(status_code=401, content={"detail": "Refresh token invalid"})
 
         request.state.user_id = user_id
         response = await call_next(request)

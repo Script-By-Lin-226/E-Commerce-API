@@ -1,17 +1,11 @@
 from app.services.authentication_service import register_user , logout_user , login_user
 from app.schemas.user_schemas import UserRegister, UserLogin
 from fastapi import HTTPException, APIRouter, Depends, Request
-from fastapi.responses import Response
 from app.core.dependency import get_async_session
 # Rate limiting disabled for local development
 # from app.security.prevent_brutefore import limiter
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-
-# Explicit OPTIONS handler for CORS preflight
-@router.options("/{path:path}")
-async def options_handler(path: str):
-    return Response(status_code=200)
 
 @router.post("/register")
 # @limiter.limit("10 per day")  # Disabled for local development

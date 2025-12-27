@@ -6,6 +6,7 @@ from app.services.jwt_service import decode_token
 from app.models.DataTable import UserTable
 from app.security.password_hashed import hash_password, verify_password
 from app.services.jwt_service import create_access_token, create_refresh_token
+from app.core.redis_cli import redis_client
 from app.schemas.user_schemas import UserRegister, UserLogin
 
 
@@ -40,6 +41,15 @@ async def login_user(user:UserLogin, session: AsyncSession):
     access_token = create_access_token({"sub": str(db_user.id) , "type": "access"})
     refresh_token = create_refresh_token({"sub": str(db_user.id), "type": "refresh"})
 
+    # Store refresh token in Redis (with error handling)
+    try:
+        await redis_client.set(f"refresh_token:{db_user.id}", refresh_token, ex=7 * 24 * 3600)
+    except Exception as e:
+        # Log error but don't fail login if Redis is unavailable
+        # In production, you might want to log this to a monitoring service
+        print(f"Warning: Failed to store refresh token in Redis: {e}")
+        # Continue with login even if Redis fails
+
     response = JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"access_token": access_token, "token_type": "bearer"}
@@ -71,7 +81,14 @@ async def logout_user(request: Request):
     user = getattr(request.state, "user")
     user_id = user.id
 
-    # Clear cookies (tokens are stateless JWT, no server-side storage needed)
+    # Delete Redis token (with error handling)
+    try:
+        await redis_client.delete(f"refresh_token:{user_id}")
+    except Exception as e:
+        # Log error but continue with logout
+        print(f"Warning: Failed to delete refresh token from Redis: {e}")
+
+    # Clear cookies
     response = JSONResponse(status_code=200, content={"message": "Logged out successfully"})
     response.delete_cookie("refresh_token")
     response.delete_cookie("access_token")

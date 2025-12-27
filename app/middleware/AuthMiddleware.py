@@ -8,7 +8,7 @@ from app.services.jwt_service import decode_token
 from app.models.DataTable import UserTable
 
 _EXCLUDE_PATHS = {
-    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/", "/orders", "/payments" , 'https://e-commerce-api-b9zy.onrender.com/auth/login'
+    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/", "/orders", "/payments"
 }
 
 
