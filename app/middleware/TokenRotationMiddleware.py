@@ -16,10 +16,23 @@ class TokenRotationMiddleware(BaseHTTPMiddleware):
 
         # 🔥 ALWAYS allow preflight
         if request.method == "OPTIONS":
-            return await call_next(request)
+            response = await call_next(request)
+            # Add CORS headers to OPTIONS response
+            origin = request.headers.get("origin")
+            if origin:
+                response.headers["Access-Control-Allow-Origin"] = origin
+                response.headers["Access-Control-Allow-Credentials"] = "true"
+                response.headers["Access-Control-Allow-Methods"] = "*"
+                response.headers["Access-Control-Allow-Headers"] = "*"
+            return response
 
         if request.url.path in EXCLUDE_PATHS:
             response = await call_next(request)
+            # Add CORS headers
+            origin = request.headers.get("origin")
+            if origin:
+                response.headers["Access-Control-Allow-Origin"] = origin
+                response.headers["Access-Control-Allow-Credentials"] = "true"
             return response
 
         access_header = request.cookies.get("access_token")
@@ -46,6 +59,11 @@ class TokenRotationMiddleware(BaseHTTPMiddleware):
 
                 if stored_token != refresh_token:
                     response = JSONResponse(status_code=401, content={"detail": "Refresh token invalid"})
+                    # Add CORS headers
+                    origin = request.headers.get("origin")
+                    if origin:
+                        response.headers["Access-Control-Allow-Origin"] = origin
+                        response.headers["Access-Control-Allow-Credentials"] = "true"
                     return response
 
                 # Rotate tokens
@@ -58,26 +76,37 @@ class TokenRotationMiddleware(BaseHTTPMiddleware):
                 )
             except:
                 response = JSONResponse(status_code=401, content={"detail": "Refresh token invalid"})
+                # Add CORS headers
+                origin = request.headers.get("origin")
+                if origin:
+                    response.headers["Access-Control-Allow-Origin"] = origin
+                    response.headers["Access-Control-Allow-Credentials"] = "true"
                 return response
 
         request.state.user_id = user_id
         response = await call_next(request)
 
+        # Add CORS headers to all responses
+        origin = request.headers.get("origin")
+        if origin:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+
         if new_refresh_token and new_access_token:
             response.set_cookie(
                 "refresh_token",
                 new_refresh_token,
-                secure=True,   # False for local dev
-                httponly=True,  # False for local dev - allows JS access
-                samesite="none",  # More permissive for local dev
+                secure=True,   # True for HTTPS (Render)
+                httponly=True,
+                samesite="none",  # Required for cross-origin
                 max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
             )
             response.set_cookie(
                 "access_token",
                 new_access_token,
-                secure=True,   # False for local dev
-                httponly=True,  # False for local dev - allows JS access
-                samesite="none",  # More permissive for local dev
+                secure=True,   # True for HTTPS (Render)
+                httponly=True,
+                samesite="none",  # Required for cross-origin
                 max_age=30 * 60  # 30 minutes
             )
             response.headers["X-New-Access-Token"] = new_access_token

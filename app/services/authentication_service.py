@@ -47,23 +47,25 @@ async def login_user(user:UserLogin, session: AsyncSession):
         status_code=status.HTTP_200_OK,
         content={"access_token": access_token, "token_type": "bearer"}
     )
-    # Set cookies - No security headers for local development
+    # Set cookies for cross-origin (HTTPS required)
     response.set_cookie(
         "refresh_token", 
         refresh_token, 
-        httponly=True,  # Allow JS access for local dev
-        samesite="none",  # Most permissive for local dev
+        httponly=True,
+        samesite="none",  # Required for cross-origin
         max_age=7 * 24 * 3600,
-        secure=True  # False for localhost
+        secure=True  # True for HTTPS (Render)
     )
     response.set_cookie(
         "access_token", 
         access_token, 
-        httponly=True,  # Allow JS access for local dev
-        samesite="none",  # Most permissive for local dev
+        httponly=True,
+        samesite="none",  # Required for cross-origin
         max_age=30 * 60,  # 30 minutes
-        secure=True  # False for localhost
+        secure=True  # True for HTTPS (Render)
     )
+    # CORS headers will be added by CORSMiddleware, but adding explicitly for safety
+    response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
 # -------- LOGOUT --------
