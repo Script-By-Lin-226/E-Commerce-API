@@ -63,82 +63,7 @@ E_Commerce_API/
 │       ├── pages/         # Page components
 │       └── services/      # API service layer
 ├── migrations/            # Database migrations
-├── Dockerfile            # Docker configuration
 └── main.py               # Backend entry point
-```
-
-## 🌐 Deployment
-
-### Backend Deployment
-
-#### Option 1: Railway (Recommended)
-
-1. Go to https://railway.app and sign up
-2. New Project → Deploy from GitHub
-3. Select your repository
-4. Railway auto-detects Dockerfile
-5. Add environment variables:
-   - `DATABASE_URL`
-   - `REDIS_URL`
-   - `JWT_SECRET_KEY`
-   - `ACCESS_TOKEN_EXPIRE_MINS=30`
-   - `REFRESH_TOKEN_EXPIRE_DAYS=7`
-6. Railway automatically sets `PORT` variable
-
-**Note:** The `railway.json` and `railway.toml` are configured to use Dockerfile's ENTRYPOINT.
-
-#### Option 2: Fly.io
-
-1. Install Fly.io CLI: `curl -L https://fly.io/install.sh | sh`
-2. Login: `fly auth login`
-3. Launch: `fly launch --name e-commerce-api-backend`
-4. Set secrets: `fly secrets set DATABASE_URL="..." JWT_SECRET_KEY="..."`
-5. Deploy: `fly deploy`
-
-**Note:** `fly.toml` is pre-configured.
-
-#### Option 3: Koyeb
-
-1. Go to https://www.koyeb.com and sign up
-2. Create App → Connect GitHub
-3. Select repository
-4. Build settings auto-detected from Dockerfile
-5. Set environment variables in dashboard
-6. Provision PostgreSQL database in Koyeb dashboard
-7. Deploy
-
-### Frontend Deployment
-
-#### Option 1: Netlify (Recommended)
-
-1. Go to https://www.netlify.com and sign up
-2. Add new site → Import from Git
-3. Connect GitHub and select repository
-4. Build settings auto-detected from `frontend/netlify.toml`:
-   - Base directory: `frontend`
-   - Build command: `npm install --legacy-peer-deps && npm run build`
-   - Publish directory: `frontend/dist`
-5. Add environment variable: `VITE_API_URL=https://your-backend-url.com`
-6. Deploy
-
-#### Option 2: Vercel
-
-1. Go to https://vercel.com and sign up
-2. Import project from GitHub
-3. Root directory: `frontend`
-4. Build command: `npm install --legacy-peer-deps && npm run build`
-5. Output directory: `dist`
-6. Add environment variable: `VITE_API_URL=https://your-backend-url.com`
-
-### Update CORS After Deployment
-
-After deploying backend, update `app/app.py`:
-
-```python
-allow_origins=[
-    "http://localhost:3000",
-    "https://your-frontend-url.netlify.app",  # Add your frontend URL
-],
 ```
 
 ## 🔑 Features
@@ -168,7 +93,6 @@ Once backend is running, visit:
 - Redis
 - JWT Authentication
 - Alembic (Migrations)
-- Docker
 
 **Frontend:**
 - React 18

@@ -20,5 +20,5 @@ async def get_all_orders_route(request:Request ,session:AsyncSession = Depends(g
     return await get_all_orders(request,session)
 
 @router.post("/pay")
-async def payment_route(request:Request,pay:Payment ,session:AsyncSession = Depends(get_async_session)):
+async def payment_route(request:Request, pay:Payment ,session:AsyncSession = Depends(get_async_session)):
     return await payment_process(request,pay,session)

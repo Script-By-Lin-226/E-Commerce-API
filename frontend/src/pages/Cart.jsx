@@ -92,8 +92,8 @@ const Cart = () => {
                   <span className="text-xl sm:text-2xl font-bold text-primary-600">{item.product.name[0]}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg font-semibold truncate">{item.product.name}</h3>
-                  <p className="text-gray-600 text-xs sm:text-sm">${parseFloat(item.product.price).toFixed(2)} each</p>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate mb-1">{item.product.name}</h3>
+                  <p className="text-gray-600 text-xs sm:text-sm font-semibold">Kyats {parseFloat(item.product.price).toFixed(2)} each</p>
                 </div>
               </div>
               <div className="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-4 w-full sm:w-auto">
@@ -104,7 +104,7 @@ const Cart = () => {
                   >
                     −
                   </button>
-                  <span className="w-10 sm:w-12 text-center font-semibold text-gray-700">{item.quantity}</span>
+                  <span className="w-10 sm:w-12 text-center font-semibold text-gray-700 text-base">{item.quantity}</span>
                   <button
                     onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
                     className="w-8 h-8 rounded-lg border-2 border-primary-300 bg-white text-primary-600 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-200 font-semibold active:scale-95"
@@ -112,8 +112,8 @@ const Cart = () => {
                     +
                   </button>
                 </div>
-                <span className="text-base sm:text-lg font-semibold text-right min-w-[80px]">
-                  ${(parseFloat(item.product.price) * item.quantity).toFixed(2)}
+                <span className="text-base sm:text-lg font-bold text-primary-600 text-right min-w-[100px]">
+                  Kyats {(parseFloat(item.product.price) * item.quantity).toFixed(2)}
                 </span>
                 <button
                   onClick={() => handleRemoveFromCart(item.product_id)}
@@ -129,19 +129,19 @@ const Cart = () => {
 
         <div className="lg:col-span-1">
           <div className="card lg:sticky lg:top-24">
-            <h2 className="text-xl sm:text-2xl font-bold mb-6">Order Summary</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900">Order Summary</h2>
             <div className="space-y-4 mb-6">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">${total.toFixed(2)}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600 text-sm sm:text-base font-medium">Subtotal</span>
+                <span className="font-semibold text-base sm:text-lg text-gray-800">Kyats {total.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
-                <span className="font-semibold">$0.00</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600 text-sm sm:text-base font-medium">Tax</span>
+                <span className="font-semibold text-base sm:text-lg text-gray-800">Kyats 0.00</span>
               </div>
-              <div className="border-t pt-4 flex justify-between text-xl">
-                <span className="font-bold">Total</span>
-                <span className="font-bold text-primary-600">${total.toFixed(2)}</span>
+              <div className="border-t pt-4 flex justify-between items-center">
+                <span className="font-bold text-lg sm:text-xl text-gray-900">Total</span>
+                <span className="font-bold text-xl sm:text-2xl text-primary-600">Kyats {total.toFixed(2)}</span>
               </div>
             </div>
             {!user && (

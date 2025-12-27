@@ -126,9 +126,9 @@ const Payment = () => {
 
         <div className="mb-8 p-4 sm:p-6 bg-gray-50 rounded-lg">
           <div className="flex justify-between items-center">
-            <span className="text-sm sm:text-base text-gray-600">Total Amount</span>
+            <span className="text-sm sm:text-base text-gray-600 font-medium">Total Amount</span>
             <span className="text-2xl sm:text-3xl font-bold text-primary-600">
-              ${total.toFixed(2)}
+              Kyats {total.toFixed(2)}
             </span>
           </div>
         </div>
@@ -214,11 +214,11 @@ const Payment = () => {
               onChange={(e) => setPaidAmount(e.target.value)}
               placeholder="Enter payment amount"
             />
-            <p className="mt-1 text-sm text-gray-500">
-              Minimum amount: ${total.toFixed(2)}
+            <p className="mt-1 text-sm text-gray-500 font-medium">
+              Minimum amount: Kyats {total.toFixed(2)}
               {paidAmountNum > total && (
-                <span className="text-green-600 ml-2">
-                  Change: ${(paidAmountNum - total).toFixed(2)}
+                <span className="text-green-600 ml-2 font-semibold">
+                  Change: Kyats {(paidAmountNum - total).toFixed(2)}
                 </span>
               )}
             </p>

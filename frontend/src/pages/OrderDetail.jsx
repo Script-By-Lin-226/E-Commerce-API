@@ -65,9 +65,9 @@ const OrderDetail = () => {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-600">Total Amount</p>
+            <p className="text-sm text-gray-600 font-medium">Total Amount</p>
             <p className="text-3xl font-bold text-primary-600">
-              ${order['Total Price'].toFixed(2)}
+              Kyats {order['Total Price'].toFixed(2)}
             </p>
           </div>
         </div>
@@ -87,8 +87,8 @@ const OrderDetail = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">${parseFloat(item.Total_price).toFixed(2)}</p>
-                  <p className="text-sm text-gray-600">${parseFloat(item.price).toFixed(2)} each</p>
+                  <p className="font-bold text-lg text-primary-600">Kyats {parseFloat(item.Total_price).toFixed(2)}</p>
+                  <p className="text-sm text-gray-600 font-medium">Kyats {parseFloat(item.price).toFixed(2)} each</p>
                 </div>
               </div>
             ))}

@@ -23,8 +23,8 @@ async def get_all_products_route(session: AsyncSession = Depends(get_async_sessi
     return await get_all_products(session)
 
 @router.patch("/{product_id}")
-async def update_product_route(product_id: int ,product_name:Optional[str] = None, product_description:Optional[str] = None,product_price:Optional[int] = None ,stock:Optional[int] = None, session = Depends(get_async_session)):
-    return await update_product(product_id, product_name, product_description, product_price, stock, session)
+async def update_product_route(product_id: int, product_name:Optional[str] = None, product_description:Optional[str] = None, product_price:Optional[int] = None, stock:Optional[int] = None, product_image_url:Optional[str] = None, session = Depends(get_async_session)):
+    return await update_product(product_id, product_name, product_description, product_price, stock, session, product_image_url)
 
 @router.delete("/{product_id}")
 async def delete_product_route(product_id: int ,session = Depends(get_async_session), role = Depends(role_required("admin", "sale" , "hr"))):

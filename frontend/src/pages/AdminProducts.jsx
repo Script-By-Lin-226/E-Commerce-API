@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { productAPI } from '../services/api';
-import { Plus, Edit, Trash2, Package } from 'lucide-react';
+import { productAPI, uploadAPI } from '../services/api';
+import { Plus, Edit, Trash2, Package, Upload, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const AdminProducts = () => {
@@ -14,7 +14,10 @@ const AdminProducts = () => {
     description: '',
     price: '',
     stock: '',
+    image_url: '',
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
     loadProducts();
@@ -41,15 +44,17 @@ const AdminProducts = () => {
           product_description: formData.description,
           product_price: parseFloat(formData.price),
           stock: parseInt(formData.stock),
+          product_image_url: formData.image_url || null,
         });
         toast.success('Product updated successfully');
       } else {
         await productAPI.create({
-          id: parseInt(formData.id) || undefined,
+          id: formData.id ? parseInt(formData.id) : undefined,
           name: formData.name,
           description: formData.description,
           price: parseFloat(formData.price),
           stock: parseInt(formData.stock),
+          image_url: formData.image_url || null,
         });
         toast.success('Product created successfully');
       }
@@ -57,7 +62,14 @@ const AdminProducts = () => {
       resetForm();
       loadProducts();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Operation failed');
+      console.error('Product operation error:', error);
+      if (error.response?.status === 403) {
+        toast.error('You do not have permission to perform this action. Please contact an administrator.');
+      } else if (error.response?.status === 401) {
+        toast.error('Please login to continue');
+      } else {
+        toast.error(error.response?.data?.detail || error.message || 'Operation failed');
+      }
     }
   };
 
@@ -69,6 +81,7 @@ const AdminProducts = () => {
       description: product.description,
       price: product.price.toString(),
       stock: product.stock.toString(),
+      image_url: product.image_url || '',
     });
     setShowModal(true);
   };
@@ -93,8 +106,78 @@ const AdminProducts = () => {
       description: '',
       price: '',
       stock: '',
+      image_url: '',
     });
     setEditingProduct(null);
+    setSelectedFile(null);
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Invalid file type. Please select an image file (JPG, PNG, GIF, or WebP)');
+        return;
+      }
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File too large. Maximum size is 5MB');
+        return;
+      }
+      
+      setSelectedFile(file);
+      
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setFormData({ ...formData, image_url: previewUrl });
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedFile) {
+      toast.error('Please select a file first');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const response = await uploadAPI.uploadImage(selectedFile);
+      // Use the full URL with API base URL
+      const fullImageUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${response.image_url}`;
+      setFormData({ ...formData, image_url: fullImageUrl });
+      setSelectedFile(null);
+      // Revoke the preview URL to free memory
+      if (formData.image_url && formData.image_url.startsWith('blob:')) {
+        URL.revokeObjectURL(formData.image_url);
+      }
+      toast.success('Image uploaded successfully!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      if (error.response?.status === 403) {
+        toast.error('You do not have permission to upload images');
+      } else if (error.response?.status === 401) {
+        toast.error('Please login to upload images');
+      } else {
+        toast.error(error.response?.data?.detail || 'Failed to upload image');
+      }
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    // Revoke preview URL if it's a blob URL
+    if (formData.image_url && formData.image_url.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.image_url);
+    }
+    setFormData({ ...formData, image_url: '' });
+    setSelectedFile(null);
+    // Reset file input
+    const fileInput = document.getElementById('image-file-input');
+    if (fileInput) fileInput.value = '';
   };
 
   if (loading) {
@@ -134,11 +217,25 @@ const AdminProducts = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
             <div key={product.id} className="card">
+              {product.image_url ? (
+                <img 
+                  src={product.image_url} 
+                  alt={product.name}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-lg mb-4 flex items-center justify-center">
+                  <Package className="h-16 w-16 text-primary-600" />
+                </div>
+              )}
               <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
               <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-2xl font-bold text-primary-600">
-                  ${parseFloat(product.price).toFixed(2)}
+                  Kyats {parseFloat(product.price).toFixed(2)}
                 </span>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                   product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -235,6 +332,94 @@ const AdminProducts = () => {
                   value={formData.stock}
                   onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Product Image (Optional)
+                </label>
+                
+                {/* File Upload Section */}
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                    Upload from Local System
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="image-file-input"
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="image-file-input"
+                      className="flex-1 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-500 transition-colors text-center text-sm text-gray-600"
+                    >
+                      {selectedFile ? selectedFile.name : 'Choose Image File'}
+                    </label>
+                    {selectedFile && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={handleImageUpload}
+                          disabled={uploadingImage}
+                          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
+                        >
+                          <Upload className="h-4 w-4" />
+                          <span>{uploadingImage ? 'Uploading...' : 'Upload'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Supported: JPG, PNG, GIF, WebP (Max 5MB)
+                  </p>
+                </div>
+
+                {/* Image URL Input (Alternative) */}
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                    Or Enter Image URL
+                  </label>
+                  <input
+                    type="url"
+                    className="input-field"
+                    value={formData.image_url}
+                    onChange={(e) => {
+                      setFormData({ ...formData, image_url: e.target.value });
+                      setSelectedFile(null);
+                    }}
+                    placeholder="https://example.com/image.jpg or /images/products/product.jpg"
+                  />
+                </div>
+
+                {/* Image Preview */}
+                {formData.image_url && (
+                  <div className="mt-3 relative">
+                    <img 
+                      src={formData.image_url} 
+                      alt="Preview" 
+                      className="w-full h-48 object-cover rounded-lg border"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="flex space-x-3 pt-4">
                 <button

@@ -66,26 +66,49 @@ const ProductDetail = () => {
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <div className="bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl p-12 flex items-center justify-center">
+        {product.image_url ? (
+          <div className="rounded-xl overflow-hidden">
+            <img 
+              src={product.image_url} 
+              alt={product.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          </div>
+        ) : null}
+        <div className={`bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl p-12 flex items-center justify-center ${product.image_url ? 'hidden' : ''}`}>
           <Package className="h-48 w-48 text-primary-600" />
         </div>
 
         <div>
           <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
           <p className="text-2xl font-bold text-primary-600 mb-6">
-            ${parseFloat(product.price).toFixed(2)}
+            Kyats {parseFloat(product.price).toFixed(2)}
           </p>
           <p className="text-gray-700 mb-6 leading-relaxed">{product.description}</p>
 
           <div className="mb-6">
-            <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
-              product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-            }`}>
-              {product.stock > 0 ? `In Stock (${product.stock} available)` : 'Out of Stock'}
-            </span>
-          </div>
+              <span
+                className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
+                  !product.is_active
+                    ? 'bg-gray-200 text-gray-800'
+                    : product.stock > 0
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}
+              >
+                {!product.is_active
+                  ? 'Product is not available'
+                  : product.stock > 0
+                  ? `In Stock (${product.stock} available)`
+                  : 'Out of Stock'}
+              </span>
+            </div>
 
-          {product.stock > 0 && (
+          {product.stock > 0 || product.is_active === true && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Quantity
@@ -117,11 +140,11 @@ const ProductDetail = () => {
 
           <button
             onClick={handleAddToCart}
-            disabled={product.stock === 0}
+            disabled={product.stock === 0 || product.is_active === false}
             className="btn-primary w-full flex items-center justify-center space-x-2"
           >
             <ShoppingCart className="h-5 w-5" />
-            <span>{product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
+            <span>{product.is_active > 0 ? 'Add to Cart' : 'Unavailable'}</span>
           </button>
         </div>
       </div>

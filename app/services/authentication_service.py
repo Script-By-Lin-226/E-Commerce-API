@@ -47,22 +47,22 @@ async def login_user(user:UserLogin, session: AsyncSession):
         status_code=status.HTTP_200_OK,
         content={"access_token": access_token, "token_type": "bearer"}
     )
-    # Set cookies with proper settings for cross-origin
+    # Set cookies - No security headers for local development
     response.set_cookie(
         "refresh_token", 
         refresh_token, 
-        httponly=True, 
-        samesite="none",
+        httponly=True,  # Allow JS access for local dev
+        samesite="lax",  # Most permissive for local dev
         max_age=7 * 24 * 3600,
-        secure=True  # Set to False for localhost development
+        secure=False  # False for localhost
     )
     response.set_cookie(
         "access_token", 
         access_token, 
-        httponly=True, 
-        samesite="none",
+        httponly=True,  # Allow JS access for local dev
+        samesite="lax",  # Most permissive for local dev
         max_age=30 * 60,  # 30 minutes
-        secure=True  # Set to False for localhost development
+        secure=False  # False for localhost
     )
     return response
 

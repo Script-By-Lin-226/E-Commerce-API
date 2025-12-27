@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Normalize API URL - replace 0.0.0.0 with localhost
 const getApiUrl = () => {
-  const envUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const envUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:8000';
   return envUrl.replace('0.0.0.0', 'localhost');
 };
 
@@ -34,15 +34,22 @@ api.interceptors.response.use(
     const newAccessToken = response.headers['x-new-access-token'];
     if (newAccessToken) {
       // Update cookie or store in localStorage if needed
-      document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=None; Secure=true`;
+      document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=lax; Secure=false`;
     }
     return response;
   },
   async (error) => {
+    // Handle 403 Forbidden (role/permission issues)
+    if (error.response?.status === 403) {
+      console.error('Access forbidden:', error.response?.data?.detail || 'You do not have permission');
+      // Don't logout on 403, just show error
+      return Promise.reject(error);
+    }
+    
     // Don't redirect on 401 for login/register/payment pages
     if (error.response?.status === 401) {
       const currentPath = window.location.pathname;
-      if (currentPath !== '/login' && currentPath !== '/register' && !currentPath.startsWith('/payment')) {
+      if (currentPath !== '/login' && currentPath !== '/register' && !currentPath.startsWith('/pay')) {
         window.location.href = '/login';
       }
     }
@@ -98,6 +105,25 @@ export const productAPI = {
   
   delete: async (productId) => {
     const response = await api.delete(`/product/${productId}`);
+    return response.data;
+  },
+};
+
+// Upload API
+export const uploadAPI = {
+  uploadImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+  
+  deleteImage: async (filename) => {
+    const response = await api.delete(`/upload/image/${filename}`);
     return response.data;
   },
 };

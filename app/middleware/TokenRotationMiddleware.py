@@ -1,23 +1,26 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 from app.core.redis_cli import redis_client
 from app.services.jwt_service import decode_token, create_access_token, create_refresh_token
 from app.config.config import settings
 
 EXCLUDE_PATHS = {
-    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/auth/logout", "/",
-    "/product/", "/product/search"  # Make product viewing public
+    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/auth/logout" , "/",  "/order/" , "/payment"
 }
+
 
 class TokenRotationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # Allow OPTIONS requests to pass through (for CORS preflight)
+
+        # 🔥 ALWAYS allow preflight
         if request.method == "OPTIONS":
             return await call_next(request)
-        
+
         if request.url.path in EXCLUDE_PATHS:
-            return await call_next(request)
+            response = await call_next(request)
+            return response
 
         access_header = request.cookies.get("access_token")
         refresh_token = request.cookies.get("refresh_token")
@@ -42,7 +45,8 @@ class TokenRotationMiddleware(BaseHTTPMiddleware):
                 stored_token = await redis_client.get(f"refresh_token:{user_id}")
 
                 if stored_token != refresh_token:
-                    return JSONResponse(status_code=401, content={"detail": "Refresh token invalid"})
+                    response = JSONResponse(status_code=401, content={"detail": "Refresh token invalid"})
+                    return response
 
                 # Rotate tokens
                 new_access_token = create_access_token({"sub": user_id})
@@ -53,7 +57,8 @@ class TokenRotationMiddleware(BaseHTTPMiddleware):
                     ex=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
                 )
             except:
-                return JSONResponse(status_code=401, content={"detail": "Refresh token invalid"})
+                response = JSONResponse(status_code=401, content={"detail": "Refresh token invalid"})
+                return response
 
         request.state.user_id = user_id
         response = await call_next(request)
@@ -62,17 +67,17 @@ class TokenRotationMiddleware(BaseHTTPMiddleware):
             response.set_cookie(
                 "refresh_token",
                 new_refresh_token,
-                secure=True,   # False for local dev
-                httponly=True,
-                samesite="none",
+                secure=False,   # False for local dev
+                httponly=False,  # False for local dev - allows JS access
+                samesite="none",  # More permissive for local dev
                 max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
             )
             response.set_cookie(
                 "access_token",
                 new_access_token,
-                secure=True,   # False for local dev
-                httponly=True,
-                samesite="none",
+                secure=False,   # False for local dev
+                httponly=False,  # False for local dev - allows JS access
+                samesite="none",  # More permissive for local dev
                 max_age=30 * 60  # 30 minutes
             )
             response.headers["X-New-Access-Token"] = new_access_token

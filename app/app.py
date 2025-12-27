@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from app.core.dependency import init_db , get_async_session
 from app.middleware.TokenRotationMiddleware import TokenRotationMiddleware
 from app.middleware.AuthMiddleware import AuthenticationMiddleware
-from app.routes.v1 import auth_route , product_management_route , order_and_payment_route
-
+from app.routes.v1 import auth_route , product_management_route , order_and_payment_route, upload_route
+import os
 
 
 @asynccontextmanager
@@ -15,30 +16,29 @@ async def life_cycle(app: FastAPI):
 
 app = FastAPI(title="E-Commerce API" , lifespan=life_cycle)
 
-# CORS middleware MUST be added FIRST (executes LAST in FastAPI)
-# FastAPI executes middlewares in REVERSE order of addition
-# So CORS needs to be first to execute last and add headers to all responses
-# DEMO MODE: Very permissive CORS settings - allow all origins
+# Serve static files (images)
+images_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "images")
+if os.path.exists(images_dir):
+    app.mount("/images", StaticFiles(directory=images_dir), name="images")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-    ],
-    allow_origin_regex=r"https://.*\.(vercel\.app|railway\.app|up\.railway\.app)",  # Allow Vercel and Railway deployments
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all methods
-    allow_headers=["*"],  # Allow all headers
-    expose_headers=["*"],  # Expose all headers
-    max_age=3600,
-)
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# Then your custom middlewares
+app.add_middleware(AuthenticationMiddleware)
+app.add_middleware(TokenRotationMiddleware)
 app.include_router(order_and_payment_route.router)
 app.include_router(auth_route.router)
 app.include_router(product_management_route.router)
+app.include_router(upload_route.router)
 app.add_middleware(AuthenticationMiddleware)
 app.add_middleware(TokenRotationMiddleware)

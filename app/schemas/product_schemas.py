@@ -8,6 +8,7 @@ class AddProductSchema(BaseModel):
     description: str
     price: float
     stock: int
+    image_url: Optional[str] = None
 
 class ProductResponse(BaseModel):
     id: Optional[int] = None
@@ -15,6 +16,7 @@ class ProductResponse(BaseModel):
     description: str
     price: float
     stock: int
+    image_url: Optional[str] = None
     class Config:
         orm_mode = True
 

@@ -27,6 +27,11 @@ async def create_order(request:Request,order_create:OrderCreateSchema ,session: 
         if not product:
             return JSONResponse(status_code=status.HTTP_404_NOT_FOUND,content={"message":"Product not found"})
 
+        if not product.is_active:
+            return JSONResponse(
+                content={"message": "Product is not active"},
+            )
+
         if product.stock < item.quantity:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,

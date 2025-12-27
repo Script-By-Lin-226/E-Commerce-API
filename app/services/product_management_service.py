@@ -12,23 +12,48 @@ from app.schemas.product_schemas import AddProductSchema, ProductResponse
 
 
 async def add_product(new_prod: AddProductSchema, session:AsyncSession) -> ProductResponse:
-    q = select(ProductTable).where(ProductTable.id == new_prod.id)
-    result = await session.execute(q)
-    product = result.scalars().first()
-    if product:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Product already exists")
+    # Handle auto-generated ID if not provided
+    product_id = new_prod.id
+    if product_id is None:
+        # Get the maximum ID and increment by 1
+        max_id_query = select(func.max(ProductTable.id))
+        max_result = await session.execute(max_id_query)
+        max_id = max_result.scalar()
+        product_id = (max_id or 0) + 1
+    else:
+        # Check if product with this ID already exists
+        q = select(ProductTable).where(ProductTable.id == product_id)
+        result = await session.execute(q)
+        product = result.scalars().first()
+        if product:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Product already exists")
+
+    # Check if product name already exists
+    name_check = select(ProductTable).where(ProductTable.name == new_prod.name)
+    name_result = await session.execute(name_check)
+    existing_product = name_result.scalars().first()
+    if existing_product:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Product name already exists")
 
     new_product = ProductTable(
-        id=new_prod.id,
+        id=product_id,
         name=new_prod.name,
         description=new_prod.description,
         price=new_prod.price,
         stock=new_prod.stock,
+        image_url=new_prod.image_url,
     )
     session.add(new_product)
     await session.commit()
     await session.refresh(new_product)
-    return ProductResponse(id=new_product.id, name=new_product.name, description=new_product.description, price=new_product.price, stock=new_product.stock)
+    return ProductResponse(
+        id=new_product.id, 
+        name=new_product.name, 
+        description=new_product.description, 
+        price=new_product.price, 
+        stock=new_product.stock,
+        image_url=new_product.image_url
+    )
 
 async def get_all_products(session:AsyncSession):
     q = select(ProductTable).order_by(ProductTable.id)
@@ -37,7 +62,7 @@ async def get_all_products(session:AsyncSession):
     # Return empty list instead of raising error when no products
     return products if products else []
 
-async def update_product(product_id:int ,product_name:Optional[str], product_description:Optional[str],product_price:Optional[int] ,product_stock:Optional[int],session:AsyncSession) -> JSONResponse:
+async def update_product(product_id:int, product_name:Optional[str], product_description:Optional[str], product_price:Optional[int], product_stock:Optional[int], session:AsyncSession, product_image_url:Optional[str] = None) -> JSONResponse:
     q = select(ProductTable).where(ProductTable.id == product_id)
     result = await session.execute(q)
     product = result.scalars().first()
@@ -56,19 +81,29 @@ async def update_product(product_id:int ,product_name:Optional[str], product_des
     if product_stock:
         product.stock = product_stock
 
+    if product_image_url is not None:
+        product.image_url = product_image_url
+
     await session.commit()
     await session.refresh(product)
     return JSONResponse(status_code=status.HTTP_200_OK, content=f"ID {product.id}: updated successfully")
 
-async def delete_product(product_id:int, session:AsyncSession):
-    q = select(ProductTable).where(ProductTable.id == product_id)
-    result = await session.execute(q)
+async def delete_product(product_id: int, session: AsyncSession):
+    result = await session.execute(
+        select(ProductTable).where(ProductTable.id == product_id)
+    )
     product = result.scalars().first()
+
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-    await session.delete(product)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
+
+    product.is_active = False
     await session.commit()
-    return JSONResponse(content=f"ID {product.id}: deleted successfully")
+
+    return {"detail": f"Product ID {product_id} disabled successfully"}
 
 async def search_products(
     session: AsyncSession,

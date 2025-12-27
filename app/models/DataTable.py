@@ -28,13 +28,16 @@ class UserTable(Base): #User -> Order -> Payments
 class ProductTable(Base):
     __tablename__ = "products"
 
-    id = Column(Integer, primary_key=True, nullable=False)
-    name = Column(String, nullable=False, index=True, unique=True)
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False, index=True)
     description = Column(String, nullable=False)
     price = Column(Numeric(10, 2), nullable=False)
     stock = Column(Integer, nullable=False)
+    image_url = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    is_active = Column(Boolean, default=True)
 
 
 class OrdersItemTable(Base):

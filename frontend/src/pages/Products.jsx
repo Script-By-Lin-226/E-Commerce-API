@@ -119,20 +119,41 @@ const Products = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => (
               <div key={product.id} className="card group hover:scale-105 transition-transform">
-                <div className="aspect-square bg-gradient-to-br from-primary-100 to-secondary-100 rounded-lg mb-4 flex items-center justify-center">
+                {product.image_url ? (
+                  <img 
+                    src={product.image_url} 
+                    alt={product.name}
+                    className="aspect-square w-full object-cover rounded-lg mb-4"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`aspect-square bg-gradient-to-br from-primary-100 to-secondary-100 rounded-lg mb-4 flex items-center justify-center ${product.image_url ? 'hidden' : ''}`}>
                   <Package className="h-16 w-16 text-primary-600" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 line-clamp-1">{product.name}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-2xl font-bold text-primary-600">
-                    ${parseFloat(product.price).toFixed(2)}
+                    Kyats {parseFloat(product.price).toFixed(2)}
                   </span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
-                  </span>
+                  <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        !product.is_active
+                          ? 'bg-gray-200 text-gray-800'
+                          : product.stock > 0
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {!product.is_active
+                        ? 'Product is not available'
+                        : product.stock > 0
+                        ? `In Stock (${product.stock})`
+                        : 'Out of Stock'}
+                    </span>
                 </div>
                 <Link
                   to={`/products/${product.id}`}

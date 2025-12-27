@@ -76,7 +76,7 @@ const Orders = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-primary-600">
-                    ${order['Total Price'].toFixed(2)}
+                    Kyats {order['Total Price'].toFixed(2)}
                   </p>
                   <Link
                     to={`/orders/${order.order_id}`}
