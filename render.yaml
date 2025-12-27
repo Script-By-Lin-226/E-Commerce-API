@@ -21,3 +21,16 @@ services:
         value: 3.11.0
     healthCheckPath: /
 
+  - type: web
+    name: e-commerce-frontend
+    env: node
+    region: singapore
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: serve -s dist -l $PORT
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+    healthCheckPath: /
+
