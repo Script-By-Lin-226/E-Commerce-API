@@ -19,7 +19,38 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <Toaster position="top-right" />
+          <Toaster 
+            position="top-center"
+            containerStyle={{
+              top: '1rem',
+              left: '1rem',
+              right: '1rem',
+            }}
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+                fontSize: '14px',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                maxWidth: '90vw',
+                wordBreak: 'break-word',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

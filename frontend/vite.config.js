@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    allowedHosts: [
+      'ca023c587c33.ngrok-free.app' // add your ngrok host here
+    ],
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
@@ -18,7 +21,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'esbuild', // Use esbuild instead of terser (built-in, no extra dependency)
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -29,4 +32,3 @@ export default defineConfig({
     }
   }
 })
-
