@@ -28,10 +28,10 @@ This guide will help you deploy both the E-Commerce API backend and frontend to 
      - Build Command: `pip install -r requirements.txt`
      - Start Command: `uvicorn app.app:app --host 0.0.0.0 --port $PORT`
    - **Frontend Service (e-commerce-frontend)**:
-     - Environment: Node.js
+     - Type: Static Site
      - Root Directory: `frontend`
      - Build Command: `npm install && npm run build`
-     - Start Command: `npx serve -s dist -l $PORT`
+     - Publish Path: `frontend/dist`
 
 3. **Set Environment Variables for Backend**
    In the Render dashboard, go to **e-commerce-api** service → Environment tab and add:
@@ -60,10 +60,10 @@ This guide will help you deploy both the E-Commerce API backend and frontend to 
    - Run: `alembic upgrade head`
 
 ### Important Notes
-- Free tier services on Render spin down after 15 minutes of inactivity
-- First request after spin-down may take 30-60 seconds
-- Consider upgrading to a paid plan for production use
-- Both services are configured to use the Singapore region
+- **Backend**: Free tier services on Render spin down after 15 minutes of inactivity. First request after spin-down may take 30-60 seconds.
+- **Frontend**: Static sites are always available and don't spin down (free tier).
+- Consider upgrading to a paid plan for production use (backend only).
+- Both services are configured to use the Singapore region.
 
 ---
 
@@ -111,7 +111,7 @@ This guide will help you deploy both the E-Commerce API backend and frontend to 
 - Check Node.js version (should be >= 18.0.0)
 - Run `npm install` locally to check for dependency issues
 - Review build logs in Render dashboard
-- Ensure `serve` package is available (it's installed via npx, so no need to add to package.json)
+- Ensure the build output directory `frontend/dist` exists after build
 
 ---
 
