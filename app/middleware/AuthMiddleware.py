@@ -9,7 +9,7 @@ from app.core.db_init import async_session
 from app.services.jwt_service import decode_token
 
 _EXCLUDE_PATHS = {
-    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc" , "/",  "/orders" , "/payments"
+    "https://e-commerce-api-front-end.onrender.com/login","/auth/login" , "/auth/register", "/openapi.json", "/docs", "/redoc" , "/",  "/orders" , "/payments"
 }
 
 class AuthenticationMiddleware(BaseHTTPMiddleware):
