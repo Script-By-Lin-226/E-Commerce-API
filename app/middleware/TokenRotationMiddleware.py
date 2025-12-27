@@ -67,16 +67,16 @@ class TokenRotationMiddleware(BaseHTTPMiddleware):
             response.set_cookie(
                 "refresh_token",
                 new_refresh_token,
-                secure=False,   # False for local dev
-                httponly=False,  # False for local dev - allows JS access
+                secure=True,   # False for local dev
+                httponly=True,  # False for local dev - allows JS access
                 samesite="none",  # More permissive for local dev
                 max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
             )
             response.set_cookie(
                 "access_token",
                 new_access_token,
-                secure=False,   # False for local dev
-                httponly=False,  # False for local dev - allows JS access
+                secure=True,   # False for local dev
+                httponly=True,  # False for local dev - allows JS access
                 samesite="none",  # More permissive for local dev
                 max_age=30 * 60  # 30 minutes
             )

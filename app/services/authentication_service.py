@@ -52,17 +52,17 @@ async def login_user(user:UserLogin, session: AsyncSession):
         "refresh_token", 
         refresh_token, 
         httponly=True,  # Allow JS access for local dev
-        samesite="lax",  # Most permissive for local dev
+        samesite="none",  # Most permissive for local dev
         max_age=7 * 24 * 3600,
-        secure=False  # False for localhost
+        secure=True  # False for localhost
     )
     response.set_cookie(
         "access_token", 
         access_token, 
         httponly=True,  # Allow JS access for local dev
-        samesite="lax",  # Most permissive for local dev
+        samesite="none",  # Most permissive for local dev
         max_age=30 * 60,  # 30 minutes
-        secure=False  # False for localhost
+        secure=True  # False for localhost
     )
     return response
 
