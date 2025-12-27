@@ -39,18 +39,6 @@ async def root():
 
 
 # ===============================
-# CORS (MUST BE FIRST) - ALLOW ALL ORIGINS
-# ===============================
-app.add_middleware(
-    CORSMiddleware,
-    allow_origin_regex=r".*",  # Allow all origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-)
-
-# ===============================
 # CUSTOM MIDDLEWARE (ONCE)
 # ===============================
 app.add_middleware(AuthenticationMiddleware)
@@ -63,3 +51,11 @@ app.include_router(auth_route.router)
 app.include_router(product_management_route.router)
 app.include_router(order_and_payment_route.router)
 app.include_router(upload_route.router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://e-commerce-api-front-end.onrender.com", "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
