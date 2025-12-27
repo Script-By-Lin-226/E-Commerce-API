@@ -5,7 +5,7 @@ from app.services.jwt_service import decode_token, create_access_token, create_r
 from app.config.config import settings
 
 EXCLUDE_PATHS = {
-    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/auth/logout", "/", "/order/", "/payments" , "/login" ,"https://e-commerce-api-front-end.onrender.com/login"
+    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/auth/logout", "/", "/order/", "/payments" , "https://e-commerce-api-b9zy.onrender.com/auth/login"
 }
 
 class TokenRotationMiddleware(BaseHTTPMiddleware):
