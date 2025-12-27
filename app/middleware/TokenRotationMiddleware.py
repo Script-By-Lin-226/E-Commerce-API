@@ -7,7 +7,7 @@ from app.services.jwt_service import decode_token, create_access_token, create_r
 from app.config.config import settings
 
 EXCLUDE_PATHS = {
-    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/auth/logout" , "/",  "/order/" , "/payment"
+    "/auth/login", "/auth/register", "/openapi.json", "/docs", "/redoc", "/auth/logout" , "/",  "/order/" , "/payments"
 }
 
 

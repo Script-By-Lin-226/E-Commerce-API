@@ -28,7 +28,7 @@ services:
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
-    startCommand: serve -s dist -l $PORT
+    startCommand: npm start
     envVars:
       - key: VITE_API_URL
         sync: false
