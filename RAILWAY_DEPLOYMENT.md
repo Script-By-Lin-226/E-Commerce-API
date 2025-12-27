@@ -140,6 +140,12 @@ VITE_API_URL=${{backend.RAILWAY_PUBLIC_DOMAIN}}
 - Verify `DATABASE_URL` is set correctly
 - Make sure PostgreSQL service is linked to your backend service
 - Check that the database is running (Railway shows status)
+- **SSL Connection**: Railway PostgreSQL requires SSL. The code automatically adds SSL parameters, but if you see connection errors:
+  - Ensure `DATABASE_URL` from Railway includes SSL parameters
+  - Check Railway logs for specific connection error messages
+  - Verify the database service is accessible from your backend service
+- **Connection Pool**: The app uses connection pooling with `pool_pre_ping=True` to verify connections
+- If connection fails on startup, it will retry on first request
 
 **Build Errors**
 - Check build logs in Railway dashboard

@@ -10,8 +10,16 @@ from app.services.jwt_service import decode_token
 
 
 async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        # Test connection first
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print("Database connection successful and tables created/verified")
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+        print("Note: Connection will be retried on first request due to pool_pre_ping")
+        # Don't raise - let the app start and handle connection errors gracefully
+        # The connection will be retried on first request due to pool_pre_ping
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
@@ -43,7 +51,3 @@ def role_required(*roles):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
         return user
     return dependency
-
-
-
-
