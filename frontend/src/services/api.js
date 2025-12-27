@@ -33,8 +33,10 @@ api.interceptors.response.use(
     // Check for new access token in response header
     const newAccessToken = response.headers['x-new-access-token'];
     if (newAccessToken) {
-      // Update cookie or store in localStorage if needed
-      document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=lax; Secure=false`;
+      // Update cookie for cross-origin (HTTPS required)
+      // Note: Cookies set by server should already be handled, this is just a fallback
+      const isHttps = window.location.protocol === 'https:';
+      document.cookie = `access_token=${newAccessToken}; path=/; max-age=1800; SameSite=none; Secure=${isHttps}`;
     }
     return response;
   },
