@@ -3,7 +3,10 @@ import axios from 'axios';
 // Normalize API URL - replace 0.0.0.0 with localhost
 const getApiUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:8000';
-  return envUrl.replace('0.0.0.0', 'localhost');
+  const normalized = envUrl.replace('0.0.0.0', 'localhost');
+  // Log for debugging (remove in production if needed)
+  console.log('API Base URL:', normalized);
+  return normalized;
 };
 
 const API_BASE_URL = getApiUrl();
@@ -56,9 +59,13 @@ api.interceptors.response.use(
       }
     }
     
-    // Log network errors
+    // Log network errors with more details
     if (!error.response) {
       console.error('Network error:', error.message);
+      console.error('Request URL:', error.config?.url);
+      console.error('Base URL:', API_BASE_URL);
+      console.error('Full URL:', error.config?.baseURL + error.config?.url);
+      console.error('Error code:', error.code);
     }
     
     return Promise.reject(error);
