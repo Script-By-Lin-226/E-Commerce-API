@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from app.core.dependency import init_db
 from app.middleware.TokenRotationMiddleware import TokenRotationMiddleware
 from app.middleware.AuthMiddleware import AuthenticationMiddleware
+from app.middleware.CORSMiddlewareBackup import CORSMiddlewareBackup
 from app.routes.v1 import (
     auth_route,
     product_management_route,
@@ -45,10 +46,16 @@ app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r".*",  # Allow all origins
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=["*"],
+    max_age=3600,
 )
+
+# ===============================
+# BACKUP CORS MIDDLEWARE (ensures headers are always present)
+# ===============================
+app.add_middleware(CORSMiddlewareBackup)
 
 # ===============================
 # CUSTOM MIDDLEWARE (ONCE)
